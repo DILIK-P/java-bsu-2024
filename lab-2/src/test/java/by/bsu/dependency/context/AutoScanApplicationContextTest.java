@@ -2,6 +2,7 @@ package by.bsu.dependency.context;
 
 import by.bsu.dependency.example.beanpackage.FirstBean;
 import by.bsu.dependency.example.beanpackage.OtherBean;
+import by.bsu.dependency.example.beanpackage.PackagePrototypeBean;
 import by.bsu.dependency.exceptions.ApplicationContextNotStartedException;
 import by.bsu.dependency.exceptions.NoSuchBeanDefinitionException;
 
@@ -11,13 +12,13 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class HardCodedSingletonApplicationContextTest {
+class AutoScanApplicationContextTest {
 
     private ApplicationContext applicationContext;
 
     @BeforeEach
     void init() {
-        applicationContext = new HardCodedSingletonApplicationContext(FirstBean.class, OtherBean.class);
+        applicationContext = new AutoScanApplicationContext("by.bsu.dependency.example");
     }
 
     @Test
@@ -40,6 +41,8 @@ class HardCodedSingletonApplicationContextTest {
 
         assertThat(applicationContext.containsBean("firstBean")).isTrue();
         assertThat(applicationContext.containsBean("otherBean")).isTrue();
+        assertThat(applicationContext.containsBean("packagePrototypeBean")).isTrue();
+        assertThat(applicationContext.containsBean("unannotatedBean")).isFalse();
         assertThat(applicationContext.containsBean("randomName")).isFalse();
     }
 
@@ -56,40 +59,43 @@ class HardCodedSingletonApplicationContextTest {
 
         assertThat(applicationContext.getBean("firstBean")).isNotNull().isInstanceOf(FirstBean.class);
         assertThat(applicationContext.getBean("otherBean")).isNotNull().isInstanceOf(OtherBean.class);
+        assertThat(applicationContext.getBean("packagePrototypeBean")).isNotNull()
+                .isInstanceOf(PackagePrototypeBean.class);
     }
 
     @Test
-    void testGetBeanThrows() {
+    void testInjections() {
         applicationContext.start();
 
-        assertThrows(
-                NoSuchBeanDefinitionException.class,
-                () -> applicationContext.getBean("randomName"));
+        PackagePrototypeBean prototypeBean = (PackagePrototypeBean) applicationContext.getBean("packagePrototypeBean");
+        prototypeBean.doSomething();
     }
 
     @Test
     void testIsSingletonReturns() {
         assertThat(applicationContext.isSingleton("firstBean")).isTrue();
         assertThat(applicationContext.isSingleton("otherBean")).isTrue();
+        assertThat(applicationContext.isSingleton("packagePrototypeBean")).isFalse();
     }
 
     @Test
     void testIsSingletonThrows() {
         assertThrows(
                 NoSuchBeanDefinitionException.class,
-                () -> applicationContext.isSingleton("randomName"));
+                () -> applicationContext.isSingleton("unannotatedBean"));
     }
 
     @Test
     void testIsPrototypeReturns() {
         assertThat(applicationContext.isPrototype("firstBean")).isFalse();
         assertThat(applicationContext.isPrototype("otherBean")).isFalse();
+        assertThat(applicationContext.isPrototype("packagePrototypeBean")).isTrue();
     }
 
     @Test
     void testIsPrototypeThrows() {
         assertThrows(
                 NoSuchBeanDefinitionException.class,
-                () -> applicationContext.isPrototype("randomName"));
+                () -> applicationContext.isPrototype("unannotatedBean"));
     }
 }
