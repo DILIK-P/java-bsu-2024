@@ -29,5 +29,7 @@ public class Main {
 
         firstPrototypeBean.doSomething();
         secondPrototypeBean.doSomething();
+
+        // Пример с AutoScan и PostConstruct в myexample
     }
 }

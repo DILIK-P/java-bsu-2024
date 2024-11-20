@@ -16,6 +16,6 @@ public class SimpleApplicationContext extends AbstractApplicationContext {
      * @param beanClasses классы, из которых требуется создать бины
      */
     public SimpleApplicationContext(Class<?>... beanClasses) {
-        super(Arrays.stream(beanClasses));
+        super(Arrays.stream(beanClasses), true);
     }
 }

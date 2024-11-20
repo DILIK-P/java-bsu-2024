@@ -18,6 +18,6 @@ public class AutoScanApplicationContext extends AbstractApplicationContext {
      * @param packageName имя сканируемого пакета
      */
     public AutoScanApplicationContext(String packageName) {
-        super(new Reflections(packageName).getTypesAnnotatedWith(Bean.class).stream());
+        super(new Reflections(packageName).getTypesAnnotatedWith(Bean.class).stream(), true);
     }
 }

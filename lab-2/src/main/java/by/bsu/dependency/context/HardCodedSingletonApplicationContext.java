@@ -2,6 +2,9 @@ package by.bsu.dependency.context;
 
 import java.util.Arrays;
 
+import by.bsu.dependency.annotation.Bean;
+import by.bsu.dependency.annotation.BeanScope;
+
 public class HardCodedSingletonApplicationContext extends AbstractApplicationContext {
     /**
      * ! Класс существует только для базового примера !
@@ -17,6 +20,7 @@ public class HardCodedSingletonApplicationContext extends AbstractApplicationCon
      * @param beanClasses классы, из которых требуется создать бины
      */
     public HardCodedSingletonApplicationContext(Class<?>... beanClasses) {
-        super(Arrays.stream(beanClasses));
+        super(Arrays.stream(beanClasses).filter(beanClass -> beanClass.isAnnotationPresent(Bean.class)
+                && beanClass.getAnnotation(Bean.class).scope() == BeanScope.SINGLETON), false);
     }
 }

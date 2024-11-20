@@ -25,8 +25,10 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     protected Map<String, Class<?>> beanDefinitions;
     protected final Map<String, Object> singletonBeans = new HashMap<>();
     protected ContextStatus contextStatus = ContextStatus.NOT_STARTED;
+    private final boolean doesInjects;
 
-    public AbstractApplicationContext(Stream<Class<?>> beanClasses) {
+    public AbstractApplicationContext(Stream<Class<?>> beanClasses, boolean doesInjects) {
+        this.doesInjects = doesInjects;
         this.beanDefinitions = beanClasses.collect(
                 Collectors.toMap(
                         beanClass -> {
@@ -49,8 +51,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
             }
         });
         contextStatus = ContextStatus.STARTED;
-
-        singletonBeans.forEach((beanName, bean) -> inject(beanName, bean));
+        if (doesInjects) {
+            singletonBeans.forEach((beanName, bean) -> inject(beanName, bean));
+        }
         singletonBeans.forEach((beanName, bean) -> callPostConstruct(beanName, bean));
     }
 
@@ -82,7 +85,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
             return singletonBeans.get(name);
         } else {
             Object bean = instantiateBean(beanDefinitions.get(name));
-            inject(name, bean);
+            if (doesInjects){
+                inject(name, bean);
+            }
             callPostConstruct(name, bean);
             return bean;
         }
